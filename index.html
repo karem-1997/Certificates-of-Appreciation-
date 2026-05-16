@@ -158,10 +158,40 @@
             background-color: #fff;
         }
 
-        /* تنسيق الطباعة المطور والنظيف لمنع تعليق المتصفح */
+        /* كود ضبط مقاس الطباعة المطور A4 بالعرض التام */
         @media print {
+            @page {
+                size: A4 landscape;
+                margin: 0 !important;
+            }
+            html, body {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 297mm !important;
+                height: 210mm !important;
+                background: #fff !important;
+                overflow: hidden !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
             .control-panel, h1, .certificate-scroll-wrapper {
                 display: none !important;
+            }
+            .certificate-container {
+                padding: 0 !important;
+                margin: 0 !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 297mm !important;
+                height: 210mm !important;
+            }
+            canvas {
+                width: 297mm !important;
+                height: 210mm !important;
+                max-width: 100% !important;
             }
         }
     </style>
@@ -212,7 +242,7 @@
             </div>
             
             <div class="action-buttons">
-                <button class="btn btn-print" onclick="printCanvasCertificate()">🖨️ طباعة الشهادة</button>
+                <button class="btn btn-print" onclick="window.print()">🖨️ طباعة الشهادة</button>
                 <button class="btn btn-image" onclick="downloadCertificateImage()">💾 حفظ كصورة PNG أصلية</button>
             </div>
         </div>
@@ -293,7 +323,9 @@
             reader.readAsDataURL(file);
         }
 
+        // دالة ذكية مخصصة لتقطيع النص تلقائياً وضمان عدم خروجه عن العرض المحدد
         function wrapText(context, text, x, y, maxWidth, lineHeight) {
+            // تقسيم النص بناءً على السطور اليدوية أولاً ثم الكلمات
             const paragraphs = text.split('\n');
             let currentY = y;
 
@@ -356,20 +388,25 @@
                 formattedDate = `${d.getFullYear()} / ${String(d.getMonth() + 1).padStart(2, '0')} / ${String(d.getDate()).padStart(2, '0')}`;
             }
 
+            // المنطقة الآمنة للنصوص في السنتر تماماً لمنع التداخل مع صورة الطالب باليسار
             const textCenterX = canvas.width * 0.65; 
 
+            // 1. اسم المدرسة
             ctx.font = "bold 44px 'Cairo', 'Segoe UI', Arial";
             ctx.fillStyle = "#6b0012"; 
             ctx.fillText(schoolName, textCenterX + 50, 115);
 
+            // 2. عنوان الشهادة
             ctx.font = "bold 56px 'Cairo', 'Segoe UI', Arial";
             ctx.fillStyle = "#6b0012";
             ctx.fillText("شهادة تقدير", textCenterX, 220);
 
+            // 3. النص الفرعي
             ctx.font = "600 22px 'Cairo', 'Segoe UI', Arial";
             ctx.fillStyle = "#111111";
             ctx.fillText("تمنح هذه الشهادة للتلميذ / للتلميذة", textCenterX, 290);
 
+            // 4. اسم الطالب
             ctx.font = "bold 42px 'Cairo', 'Segoe UI', Arial";
             ctx.fillStyle = "#6b0012";
             ctx.fillText(studentName, textCenterX, 370);
@@ -383,11 +420,14 @@
             ctx.stroke();
             ctx.setLineDash([]); 
 
+            // 5. نص التقدير والثناء (تطبيق الحصار والمنطقة الآمنة التلقائية)
             ctx.font = "600 22px 'Cairo', 'Segoe UI', Arial";
             ctx.fillStyle = "#222222";
             
+            // قمنا بتحديد عرض أقصى مسموح به للكتابة هو 520 بكسل مع مسافة 40 بكسل بين السطور
             wrapText(ctx, appreciationText, textCenterX, 460, 520, 40);
 
+            // 6. التوقيع والتاريخ
             ctx.font = "bold 18px 'Cairo', 'Segoe UI', Arial";
             ctx.fillStyle = "#111111";
             ctx.fillText("توقيع المدير / المديرة", textCenterX + 160, 660);
@@ -406,11 +446,13 @@
                 drawGoldBadge(canvas.width * 0.42, 665);
             }
 
+            // 7. صورة الطالب في أقصى اليسار - تم تكبير المقاسات هنا بشكل متناسق
             if (studentPhotoImg) {
-                const photoWidth = 340;
-                const photoHeight = 460;
-                const photoX = 75; 
-                const photoY = canvas.height - photoHeight - 75; 
+                // المقاسات القديمة كانت تقريباً 340x460
+                const photoWidth = 500; // العرض الجديد المكبّر
+                const photoHeight = 690; // الارتفاع الجديد المكبّر
+                const photoX = 10; // تعديل بسيط لموقع X ليتناسب مع الحجم الجديد
+                const photoY = canvas.height - photoHeight - 25; // الحفاظ على المسافة السفلية
                 ctx.drawImage(studentPhotoImg, photoX, photoY, photoWidth, photoHeight);
             }
         }
@@ -446,63 +488,6 @@
             link.download = `شهادة_تقدير_${studentName}.png`;
             link.href = canvas.toDataURL('image/png', 1.0);
             link.click();
-        }
-
-        /* 🛠️ الحل السحري لمشكلة الطباعة بدون تهنيج 🛠️ */
-        function printCanvasCertificate() {
-            // 1. استخراج صورة فائقة الجودة من الكانفاس مباشرة
-            const dataUrl = canvas.toDataURL('image/png', 1.0);
-            
-            // 2. إنشاء نافذة iframe مخفية ومستقلة تماماً في الخلفية
-            const iframe = document.createElement('iframe');
-            iframe.style.position = 'fixed';
-            iframe.style.right = '0';
-            iframe.style.bottom = '0';
-            iframe.style.width = '0';
-            iframe.style.height = '0';
-            iframe.style.border = 'none';
-            document.body.appendChild(iframe);
-            
-            // 3. بناء صفحة طباعة نظيفة جداً ومجهزة لمقاس A4 العرضي داخل الـ Iframe
-            const pri = iframe.contentWindow;
-            pri.document.open();
-            pri.document.write(`
-                <html>
-                <head>
-                    <title>طباعة الشهادة</title>
-                    <style>
-                        @page {
-                            size: A4 landscape;
-                            margin: 0;
-                        }
-                        body, html {
-                            margin: 0;
-                            padding: 0;
-                            width: 100%;
-                            height: 100%;
-                            display: flex;
-                            justify-content: center;
-                            align-items: center;
-                            background: #fff;
-                        }
-                        img {
-                            width: 297mm;
-                            height: 210mm;
-                            object-fit: contain;
-                        }
-                    </style>
-                </head>
-                <body>
-                    <img src="${dataUrl}" onload="window.focus(); window.print();">
-                </body>
-                </html>
-            `);
-            pri.document.close();
-            
-            // 4. حذف الـ iframe بعد دقيقة للحفاظ على مرونة وأداء الأزرار في الصفحة الرئيسية
-            setTimeout(() => {
-                document.body.removeChild(iframe);
-            }, 1000);
         }
     </script>
 </body>
