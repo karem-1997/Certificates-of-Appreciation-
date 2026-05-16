@@ -13,7 +13,7 @@
         }
 
         body {
-            font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f0f2f5;
             margin: 0;
             padding: 15px;
@@ -40,7 +40,6 @@
             align-items: center;
         }
 
-        /* لوحة التحكم العلوية الشاملة */
         .control-panel {
             background: white;
             padding: 20px;
@@ -94,7 +93,8 @@
 
         .form-group input[type="text"],
         .form-group input[type="date"],
-        .form-group input[type="file"] {
+        .form-group input[type="file"],
+        .form-group textarea {
             width: 100%;
             padding: 10px;
             border: 1px solid #ccc;
@@ -104,37 +104,43 @@
             font-size: 14px;
         }
 
-        .btn-print {
-            width: 100%;
-            background-color: var(--maroon);
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            flex: 1;
             color: white;
             border: none;
             padding: 12px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             border-radius: 6px;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: opacity 0.3s;
             font-family: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
-        .btn-print:hover {
-            background-color: #4a000c;
-        }
+        .btn-print { background-color: var(--maroon); }
+        .btn-image { background-color: #2e7d32; }
 
-        /* حاوية التمرير الأفقي لحماية المقاسات على الموبايل */
         .certificate-scroll-wrapper {
             width: 100%;
             overflow-x: auto;
             padding-bottom: 15px;
             display: flex;
-            justify-content: flex-start;
-        }
-
-        @media (min-width: 1200px) {
-            .certificate-scroll-wrapper {
-                justify-content: center;
-            }
+            justify-content: center;
         }
 
         .certificate-container {
@@ -145,246 +151,48 @@
             flex-shrink: 0;
         }
 
-        /* أبعاد الشهادة القياسية الثابتة للطباعة A4 بالعرض */
-        .certificate {
-            width: 297mm;  
-            height: 210mm; 
-            background-color: var(--bg-ivory);
-            background-size: 100% 100%; /* تضمن فرش الصورة المرفوعة على كامل المساحة بدون قَص */
-            background-position: center;
-            background-repeat: no-repeat;
-            position: relative;
-            box-sizing: border-box;
-            padding: 30px 60px;
-            overflow: hidden;
-            border: 15px solid var(--maroon); /* الإطار الأصلي */
-            display: flex;
-            flex-direction: row; 
-            align-items: center;
-            justify-content: space-between;
-            transition: background 0.3s;
-        }
-
-        /* كلاس لإخفاء الزخارف الافتراضية تلقائياً عند رفع خلفية جديدة */
-        .certificate.custom-bg {
-            border: none !important; /* إلغاء الإطار العنابي لترك مساحة للخلفية الجديدة */
-            padding: 45px 75px; /* ضبط الحواف لتتناسب مع الخلفيات الجاهزة */
-        }
-
-        .certificate.custom-bg .default-deco {
-            display: none !important; /* إخفاء النقوش القديمة لعدم التداخل مع الخلفية الجديدة */
-        }
-
-        /* الإطارات والزوايا والزخارف الافتراضية */
-        .certificate::before {
-            content: '';
-            position: absolute;
-            top: 10px; left: 10px; right: 10px; bottom: 10px;
-            border: 3px double var(--gold);
-            pointer-events: none;
-            z-index: 1;
-        }
-        .certificate.custom-bg::before {
-            display: none !important;
-        }
-
-        .corner-decoration {
-            position: absolute;
-            width: 60px;
-            height: 60px;
-            border: 4px solid var(--gold);
-            pointer-events: none;
-            z-index: 2;
-        }
-        .top-right { top: 20px; right: 20px; border-left: none; border-bottom: none; }
-        .top-left { top: 20px; left: 20px; border-right: none; border-bottom: none; }
-        .bottom-right { bottom: 20px; right: 20px; border-left: none; border-top: none; }
-        .bottom-left { bottom: 20px; left: 20px; border-right: none; border-top: none; }
-
-        /* تصميم قسم النصوص (الجهة اليسرى) */
-        .certificate-content {
-            width: 58%;
-            text-align: center;
-            z-index: 3;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .school-title {
-            font-size: 26px;
-            color: var(--dark-gold);
-            font-weight: bold;
-            margin: 0 0 5px 0;
-            min-height: 38px;
-            letter-spacing: 1px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-            border-bottom: 1px double rgba(212, 175, 55, 0.4);
-            padding-bottom: 4px;
-            width: 80%;
-        }
-
-        .main-title {
-            font-size: 55px;
-            color: var(--maroon);
-            margin: 5px 0 10px 0;
-            font-weight: bold;
-            letter-spacing: 2px;
-        }
-
-        .sub-title {
-            font-size: 21px;
-            color: #333;
-            margin: 5px 0;
-        }
-
-        .student-name {
-            font-size: 38px;
-            color: var(--dark-gold);
-            font-weight: bold;
-            margin: 12px 0;
-            min-height: 55px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 90%;
-            border-bottom: 2px dotted var(--dark-gold);
-        }
-
-        .appreciation-text {
-            font-size: 19px;
-            color: #444;
-            line-height: 1.8;
-            margin: 12px 0;
-            max-width: 95%;
-        }
-
-        .footer-section {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            margin-top: 25px;
-            padding: 0 10px;
-            box-sizing: border-box;
-        }
-
-        .signature-block, .date-block {
-            font-size: 16px;
-            color: #333;
-            text-align: center;
-        }
-        .line {
-            margin-top: 25px;
-            border-top: 1px dashed #666;
-            width: 160px;
-        }
-
-        /* الوسام الذهبي السفلي الافتراضي */
-        .badge-container {
-            position: absolute;
-            bottom: 30px;
-            left: 46%;
-            z-index: 4;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .badge {
-            width: 85px;
-            height: 85px;
-            background: radial-gradient(circle, #ffe57f 0%, var(--gold) 75%, var(--dark-gold) 100%);
-            border-radius: 50%;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            position: relative;
-            border: 2px dashed #fff;
-        }
-        .badge::before, .badge::after {
-            content: '';
-            position: absolute;
-            bottom: -15px;
-            width: 25px;
-            height: 50px;
-            background-color: var(--maroon);
-            z-index: -1;
-            clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
-        }
-        .badge::before { left: 12px; transform: rotate(15deg); }
-        .badge::after { right: 12px; transform: rotate(-15deg); }
-
-        /* تصميم قسم صورة الطالب المفرغة (الجهة اليمنى) */
-        .student-photo-section {
-            width: 38%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: flex-end; 
-            z-index: 3;
-            position: relative;
-        }
-
-        .photo-render-area {
-            width: 100%;
-            height: 85%;
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-        }
-
-        .photo-render-area img {
+        /* ضبط عرض الكانفاس على الشاشة ليناسب الموبايل بشكل متجاوب */
+        canvas {
+            display: block;
             max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            display: none; 
+            height: auto;
+            background-color: #fff;
         }
 
-        .placeholder-box {
-            border: 2px dashed var(--gold);
-            border-radius: 8px;
-            padding: 30px 15px;
-            text-align: center;
-            color: #777;
-            font-size: 14px;
-            background-color: rgba(212, 175, 55, 0.03);
-            width: 80%;
-            margin-bottom: 40px;
-        }
-
-        /* إعدادات الطباعة الـ PDF */
+        /* كود الطباعة الاحترافي لضبط المقاس A4 بالعرض تماماً */
         @media print {
-            body {
-                background: none;
-                padding: 0;
-                margin: 0;
+            @page {
+                size: A4 landscape; /* إجبار الطابعة على وضعية العرض */
+                margin: 0 !important; /* إلغاء الهوامش تماماً لعدم تقطيع الورقة */
             }
-            .control-panel, h1 {
-                display: none !important; 
+            html, body {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 297mm !important; /* العرض الدقيق لورقة A4 */
+                height: 210mm !important; /* الارتفاع الدقيق لورقة A4 */
+                background: #fff !important;
+                overflow: hidden !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
-            .container {
-                gap: 0;
-                padding: 0;
-                margin: 0;
-                max-width: none;
-                width: auto;
-            }
-            .certificate-scroll-wrapper {
-                overflow: visible;
-                display: block;
+            .control-panel, h1, .certificate-scroll-wrapper {
+                display: none !important; /* إخفاء لوحة التحكم والأزرار والعناوين */
             }
             .certificate-container {
-                box-shadow: none;
-                padding: 0;
-                border-radius: 0;
+                padding: 0 !important;
+                margin: 0 !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 297mm !important;
+                height: 210mm !important;
             }
-            .certificate {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-                page-break-inside: avoid;
-            }
-            @page {
-                size: A4 landscape; 
-                margin: 0;
+            canvas {
+                width: 297mm !important; /* فرد الكانفاس ليملأ الورقة بالكامل حافة لحافة */
+                height: 210mm !important;
+                max-width: 100% !important;
             }
         }
     </style>
@@ -402,200 +210,258 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="nameInput">اسم الطالب / الطالبة:</label>
-                        <input type="text" id="nameInput" placeholder="اكتب اسم الطالب هنا..." oninput="updateName()">
+                        <input type="text" id="nameInput" value="محمد علي" oninput="drawCertificate()">
                     </div>
                     
                     <div class="form-group">
                         <label for="dateInput">تاريخ الشهادة:</label>
-                        <input type="date" id="dateInput" onchange="updateDate()">
+                        <input type="date" id="dateInput" onchange="drawCertificate()">
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="schoolInput">اسم المدرسة / المؤسسة:</label>
-                    <input type="text" id="schoolInput" placeholder="اكتب اسم المدرسة هنا..." oninput="updateSchool()">
+                    <input type="text" id="schoolInput" value="مدرسة 15 مايو التجريبية" oninput="drawCertificate()">
+                </div>
+
+                <div class="form-group">
+                    <label for="textInput">نص التقدير والثناء الداخلي:</label>
+                    <textarea id="textInput" oninput="drawCertificate()">وذلك تقديراً لجهوده المتميزة وتفوقه في الدراسة وسلوكه الطيب ومثابرته طوال العام الدراسي.&#10;نتمنى لك دوام التوفيق والنجاح لانتهاء العام الدراسي.</textarea>
                 </div>
                 
                 <div class="form-row">
                     <div class="form-group">
-                        <label style="color: #2e7d32;" for="bgInput">🖼️ اختر خلفية للشهادة (اختياري لتغيير الاستايل):</label>
-                        <input type="file" id="bgInput" accept="image/*" onchange="changeCertificateBackground(event)">
+                        <label style="color: #2e7d32;" for="bgInput">🖼️ اختر خلفية للشهادة (اختياري):</label>
+                        <input type="file" id="bgInput" accept="image/*" onchange="loadCustomBackground(event)">
                     </div>
                     
                     <div class="form-group">
                         <label for="photoInput">👶 صورة الطالب (بخلفية بيضاء سادة):</label>
-                        <input type="file" id="photoInput" accept="image/*" onchange="processAndRemoveBackground(event)">
+                        <input type="file" id="photoInput" accept="image/*" onchange="loadStudentPhoto(event)">
                     </div>
                 </div>
             </div>
             
-            <button class="btn-print" onclick="window.print()">طباعة / حفظ الشهادة PDF</button>
+            <div class="action-buttons">
+                <button class="btn btn-print" onclick="window.print()">🖨️ طباعة الشهادة</button>
+                <button class="btn btn-image" onclick="downloadCertificateImage()">💾 حفظ كصورة PNG أصلية</button>
+            </div>
         </div>
 
         <div class="certificate-scroll-wrapper">
             <div class="certificate-container">
-                <div class="certificate" id="certificate">
-                    
-                    <div class="corner-decoration top-right default-deco"></div>
-                    <div class="corner-decoration top-left default-deco"></div>
-                    <div class="corner-decoration bottom-right default-deco"></div>
-                    <div class="corner-decoration bottom-left default-deco"></div>
-
-                    <div class="certificate-content">
-                        <div class="school-title" id="certSchool">مدرسة الرواد النموذجية</div>
-
-                        <h2 class="main-title">شهادة تقدير</h2>
-                        <p class="sub-title">تمنح هذه الشهادة للتلميذ / للتلميذة</p>
-                        
-                        <div class="student-name" id="certName">محمد علي</div>
-                        
-                        <p class="appreciation-text">
-                            وذلك تقديراً لجهوده المتميزة وتفوقه في الدراسة وسلوكه الطيب ومثابرته طوال العام الدراسي.<br>
-                            نتمنى لك دوام التوفيق والنجاح لانتهـاء العـام الدراسـي.
-                        </p>
-                        
-                        <div class="footer-section">
-                            <div class="signature-block">
-                                <span>توقيع المدير / المديرة</span>
-                                <div class="line"></div>
-                            </div>
-                            <div class="date-block">
-                                <span>التاريخ:</span>
-                                <strong id="certDate">2026 / 05 / 16</strong>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="badge-container default-deco">
-                        <div class="badge"></div>
-                    </div>
-
-                    <div class="student-photo-section">
-                        <div class="photo-render-area" id="photoRenderArea">
-                            <div class="placeholder-box" id="placeholderBox">
-                                سيتم تفريغ صورة الطالب وسحبها هنا تلقائياً فور رفعها
-                            </div>
-                            <img id="certPhoto" src="" alt="صورة الطالب المعزولة">
-                        </div>
-                    </div>
-
-                </div>
+                <canvas id="certCanvas" width="1123" height="794"></canvas> 
             </div>
         </div>
 
     </div>
 
     <script>
-        // دالة تغيير خلفية الشهادة ديناميكياً من اختيار المستخدم
-        function changeCertificateBackground(event) {
-            const input = event.target;
-            if (!input.files || !input.files[0]) return;
+        const canvas = document.getElementById('certCanvas');
+        const ctx = canvas.getContext('2d');
 
-            const file = input.files[0];
-            const reader = new FileReader();
+        let customBgImage = null;
+        let studentPhotoImg = null;
 
-            reader.onload = function(e) {
-                const cert = document.getElementById('certificate');
-                // تعيين الصورة كخلفية
-                cert.style.backgroundImage = `url('${e.target.result}')`;
-                // إضافة كلاس لإخفاء الإطار والزخارف الافتراضية القديمة لتظهر صورتك بوضوح
-                cert.classList.add('custom-bg');
-            };
-            reader.readAsDataURL(file);
-        }
-
-        // تحديث اسم المدرسة
-        function updateSchool() {
-            const schoolInput = document.getElementById('schoolInput').value;
-            const certSchool = document.getElementById('certSchool');
-            if(schoolInput.trim() !== "") {
-                certSchool.innerText = schoolInput;
-            } else {
-                certSchool.innerText = "اسم المدرسة يظهر هنا";
-            }
-        }
-
-        // تحديث اسم الطالب
-        function updateName() {
-            const nameInput = document.getElementById('nameInput').value;
-            const certName = document.getElementById('certName');
-            if(nameInput.trim() !== "") {
-                certName.innerText = nameInput;
-            } else {
-                certName.innerText = "اسم الطالب يظهر هنا";
-            }
-        }
-
-        // تحديث التاريخ المختار
-        function updateDate() {
-            const dateInput = document.getElementById('dateInput').value;
-            if(!dateInput) return;
-
-            const chosenDate = new Date(dateInput);
-            const year = chosenDate.getFullYear();
-            const month = String(chosenDate.getMonth() + 1).padStart(2, '0');
-            const day = String(chosenDate.getDate()).padStart(2, '0');
+        window.onload = function() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            document.getElementById('dateInput').value = `${year}-${month}-${day}`;
             
-            document.getElementById('certDate').innerText = `${year} / ${month} / ${day}`;
+            drawCertificate();
         }
 
-        // تفريغ وعزل اللون الأبيض تلقائياً من صورة الطالب
-        function processAndRemoveBackground(event) {
-            const input = event.target;
-            if (!input.files || !input.files[0]) return;
-
-            const file = input.files[0];
+        function loadCustomBackground(event) {
+            const file = event.target.files[0];
+            if (!file) return;
             const reader = new FileReader();
-
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    ctx.drawImage(img, 0, 0);
-
-                    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    const data = imgData.data;
-
-                    const threshold = 210; 
-
-                    for (let i = 0; i < data.length; i += 4) {
-                        const r = data[i];
-                        const g = data[i+1];
-                        const b = data[i+2];
-
-                        if (r > threshold && g > threshold && b > threshold) {
-                            data[i+3] = 0; 
-                        }
-                    }
-
-                    ctx.putImageData(imgData, 0, 0);
-
-                    const transparentSrc = canvas.toDataURL('image/png');
-                    const certPhoto = document.getElementById('certPhoto');
-                    const placeholderBox = document.getElementById('placeholderBox');
-
-                    certPhoto.src = transparentSrc;
-                    certPhoto.style.display = 'block';
-                    placeholderBox.style.display = 'none';
+                    customBgImage = img;
+                    drawCertificate();
                 };
                 img.src = e.target.result;
             };
             reader.readAsDataURL(file);
         }
 
-        // تعيين تاريخ اليوم عند بدء التحميل
-        window.onload = function() {
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const day = String(today.getDate()).padStart(2, '0');
+        function loadStudentPhoto(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const tempCanvas = document.createElement('canvas');
+                    const tempCtx = tempCanvas.getContext('2d');
+                    tempCanvas.width = img.width;
+                    tempCanvas.height = img.height;
+                    tempCtx.drawImage(img, 0, 0);
+
+                    const imgData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+                    const data = imgData.data;
+                    const threshold = 220;
+
+                    for (let i = 0; i < data.length; i += 4) {
+                        if (data[i] > threshold && data[i+1] > threshold && data[i+2] > threshold) {
+                            data[i+3] = 0;
+                        }
+                    }
+                    tempCtx.putImageData(imgData, 0, 0);
+
+                    const processedImg = new Image();
+                    processedImg.onload = function() {
+                        studentPhotoImg = processedImg;
+                        drawCertificate();
+                    };
+                    processedImg.src = tempCanvas.toDataURL();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function drawCertificate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (customBgImage) {
+                ctx.drawImage(customBgImage, 0, 0, canvas.width, canvas.height);
+            } else {
+                ctx.fillStyle = "#faf6ec";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.strokeStyle = "#6b0012";
+                ctx.lineWidth = 30;
+                ctx.strokeRect(15, 15, canvas.width - 30, canvas.height - 30);
+
+                ctx.strokeStyle = "#d4af37";
+                ctx.lineWidth = 4;
+                ctx.strokeRect(40, 40, canvas.width - 80, canvas.height - 80);
+                
+                drawCornerDeco(45, 45, 50, 50); 
+                drawCornerDeco(canvas.width - 45, 45, -50, 50); 
+                drawCornerDeco(45, canvas.height - 45, 50, -50); 
+                drawCornerDeco(canvas.width - 45, canvas.height - 45, -50, -50); 
+            }
+
+            ctx.textBaseline = "middle";
+            ctx.textAlign = "center"; 
+
+            const schoolName = document.getElementById('schoolInput').value || "";
+            const studentName = document.getElementById('nameInput').value || "";
+            const appreciationText = document.getElementById('textInput').value || "";
             
-            document.getElementById('dateInput').value = `${year}-${month}-${day}`;
-            document.getElementById('certDate').innerText = `${year} / ${month} / ${day}`;
+            const dateVal = document.getElementById('dateInput').value;
+            let formattedDate = "";
+            if(dateVal) {
+                const d = new Date(dateVal);
+                formattedDate = `${d.getFullYear()} / ${String(d.getMonth() + 1).padStart(2, '0')} / ${String(d.getDate()).padStart(2, '0')}`;
+            }
+
+            const textCenterX = canvas.width * 0.65; 
+
+            // 1. اسم المدرسة
+            ctx.font = "bold 44px 'Cairo', 'Segoe UI', Arial";
+            ctx.fillStyle = "#6b0012"; 
+            ctx.fillText(schoolName, textCenterX + 50, 115);
+
+            // 2. عنوان الشهادة
+            ctx.font = "bold 56px 'Cairo', 'Segoe UI', Arial";
+            ctx.fillStyle = "#6b0012";
+            ctx.fillText("شهادة تقدير", textCenterX, 220);
+
+            // 3. النص الفرعي
+            ctx.font = "600 22px 'Cairo', 'Segoe UI', Arial";
+            ctx.fillStyle = "#111111";
+            ctx.fillText("تمنح هذه الشهادة للتلميذ / للتلميذة", textCenterX, 290);
+
+            // 4. اسم الطالب
+            ctx.font = "bold 42px 'Cairo', 'Segoe UI', Arial";
+            ctx.fillStyle = "#6b0012";
+            ctx.fillText(studentName, textCenterX, 370);
+
+            ctx.beginPath();
+            ctx.strokeStyle = "#6b0012";
+            ctx.lineWidth = 2;
+            ctx.setLineDash([4, 4]);
+            ctx.moveTo(textCenterX - 180, 410);
+            ctx.lineTo(textCenterX + 180, 410);
+            ctx.stroke();
+            ctx.setLineDash([]); 
+
+            // 5. نص التقدير والثناء
+            ctx.font = "600 20px 'Cairo', 'Segoe UI', Arial";
+            ctx.fillStyle = "#222222";
+            const lines = appreciationText.split('\n');
+            let startY = 460;
+            lines.forEach((line) => {
+                ctx.fillText(line, textCenterX, startY);
+                startY += 40; 
+            });
+
+            // 6. التوقيع والتاريخ
+            ctx.font = "bold 18px 'Cairo', 'Segoe UI', Arial";
+            ctx.fillStyle = "#111111";
+            ctx.fillText("توقيع المدير / المديرة", textCenterX + 160, 650);
+            ctx.beginPath();
+            ctx.strokeStyle = "#444444";
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([4, 4]);
+            ctx.moveTo(textCenterX + 70, 690);
+            ctx.lineTo(textCenterX + 250, 690);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.fillText(`التاريخ:  ${formattedDate}`, textCenterX - 160, 650);
+
+            if (!customBgImage) {
+                drawGoldBadge(canvas.width * 0.42, 655);
+            }
+
+            // 7. صورة الطالب في أقصى اليسار وبمقاس متناسق
+            if (studentPhotoImg) {
+                const photoWidth = 340;
+                const photoHeight = 460;
+                const photoX = 75; 
+                const photoY = canvas.height - photoHeight - 75; 
+                ctx.drawImage(studentPhotoImg, photoX, photoY, photoWidth, photoHeight);
+            }
+        }
+
+        function drawCornerDeco(x, y, w, h) {
+            ctx.beginPath();
+            ctx.strokeStyle = "#d4af37";
+            ctx.lineWidth = 5;
+            ctx.moveTo(x + w, y);
+            ctx.lineTo(x, y);
+            ctx.lineTo(x, y + h);
+            ctx.stroke();
+        }
+
+        function drawGoldBadge(x, y) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(x, y, 35, 0, Math.PI * 2);
+            ctx.fillStyle = "#d4af37";
+            ctx.shadowColor = "rgba(0,0,0,0.15)";
+            ctx.shadowBlur = 6;
+            ctx.fill();
+            ctx.strokeStyle = "#fff";
+            ctx.lineWidth = 2;
+            ctx.setLineDash([3, 3]);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function downloadCertificateImage() {
+            const studentName = document.getElementById('nameInput').value.trim() || "طالب";
+            const link = document.createElement('a');
+            link.download = `شهادة_تقدير_${studentName}.png`;
+            link.href = canvas.toDataURL('image/png', 1.0);
+            link.click();
         }
     </script>
 </body>
