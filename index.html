@@ -40,14 +40,14 @@
             align-items: center;
         }
 
-        /* لوحة التحكم العلوية */
+        /* لوحة التحكم العلوية الشاملة */
         .control-panel {
             background: white;
             padding: 20px;
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.08);
             width: 100%;
-            max-width: 700px;
+            max-width: 750px;
             box-sizing: border-box;
         }
 
@@ -122,7 +122,7 @@
             background-color: #4a000c;
         }
 
-        /* حاوية التمرير الأفقي للموبايل */
+        /* حاوية التمرير الأفقي لحماية المقاسات على الموبايل */
         .certificate-scroll-wrapper {
             width: 100%;
             overflow-x: auto;
@@ -145,23 +145,37 @@
             flex-shrink: 0;
         }
 
-        /* أبعاد الشهادة القياسية الثابتة للطباعة A4 */
+        /* أبعاد الشهادة القياسية الثابتة للطباعة A4 بالعرض */
         .certificate {
             width: 297mm;  
             height: 210mm; 
             background-color: var(--bg-ivory);
+            background-size: 100% 100%; /* تضمن فرش الصورة المرفوعة على كامل المساحة بدون قَص */
+            background-position: center;
+            background-repeat: no-repeat;
             position: relative;
             box-sizing: border-box;
             padding: 30px 60px;
             overflow: hidden;
-            border: 15px solid var(--maroon);
+            border: 15px solid var(--maroon); /* الإطار الأصلي */
             display: flex;
-            flex-direction: row; /* النص يسار والصورة يمين كما طلبت */
+            flex-direction: row; 
             align-items: center;
             justify-content: space-between;
+            transition: background 0.3s;
         }
 
-        /* الإطارات والزوايا والزخارف */
+        /* كلاس لإخفاء الزخارف الافتراضية تلقائياً عند رفع خلفية جديدة */
+        .certificate.custom-bg {
+            border: none !important; /* إلغاء الإطار العنابي لترك مساحة للخلفية الجديدة */
+            padding: 45px 75px; /* ضبط الحواف لتتناسب مع الخلفيات الجاهزة */
+        }
+
+        .certificate.custom-bg .default-deco {
+            display: none !important; /* إخفاء النقوش القديمة لعدم التداخل مع الخلفية الجديدة */
+        }
+
+        /* الإطارات والزوايا والزخارف الافتراضية */
         .certificate::before {
             content: '';
             position: absolute;
@@ -169,6 +183,9 @@
             border: 3px double var(--gold);
             pointer-events: none;
             z-index: 1;
+        }
+        .certificate.custom-bg::before {
+            display: none !important;
         }
 
         .corner-decoration {
@@ -196,7 +213,6 @@
             align-items: center;
         }
 
-        /* تنسيق مدرسة الزخرفي المضاف حديثاً أعلى الشهادة */
         .school-title {
             font-size: 26px;
             color: var(--dark-gold);
@@ -265,7 +281,7 @@
             width: 160px;
         }
 
-        /* الوسام الذهبي السفلي متناسق ومتوسط */
+        /* الوسام الذهبي السفلي الافتراضي */
         .badge-container {
             position: absolute;
             bottom: 30px;
@@ -362,7 +378,6 @@
                 border-radius: 0;
             }
             .certificate {
-                border: 15px solid var(--maroon) !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
                 page-break-inside: avoid;
@@ -398,12 +413,19 @@
 
                 <div class="form-group">
                     <label for="schoolInput">اسم المدرسة / المؤسسة:</label>
-                    <input type="text" id="schoolInput" placeholder="اكتب اسم المدرسة هنا (مثال: مدرسة النهضة الابتدائية)..." oninput="updateSchool()">
+                    <input type="text" id="schoolInput" placeholder="اكتب اسم المدرسة هنا..." oninput="updateSchool()">
                 </div>
                 
-                <div class="form-group">
-                    <label for="photoInput">صورة الطالب (بخلفية بيضاء سادة):</label>
-                    <input type="file" id="photoInput" accept="image/*" onchange="processAndRemoveBackground(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label style="color: #2e7d32;" for="bgInput">🖼️ اختر خلفية للشهادة (اختياري لتغيير الاستايل):</label>
+                        <input type="file" id="bgInput" accept="image/*" onchange="changeCertificateBackground(event)">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="photoInput">👶 صورة الطالب (بخلفية بيضاء سادة):</label>
+                        <input type="file" id="photoInput" accept="image/*" onchange="processAndRemoveBackground(event)">
+                    </div>
                 </div>
             </div>
             
@@ -414,10 +436,10 @@
             <div class="certificate-container">
                 <div class="certificate" id="certificate">
                     
-                    <div class="corner-decoration top-right"></div>
-                    <div class="corner-decoration top-left"></div>
-                    <div class="corner-decoration bottom-right"></div>
-                    <div class="corner-decoration bottom-left"></div>
+                    <div class="corner-decoration top-right default-deco"></div>
+                    <div class="corner-decoration top-left default-deco"></div>
+                    <div class="corner-decoration bottom-right default-deco"></div>
+                    <div class="corner-decoration bottom-left default-deco"></div>
 
                     <div class="certificate-content">
                         <div class="school-title" id="certSchool">مدرسة الرواد النموذجية</div>
@@ -444,7 +466,7 @@
                         </div>
                     </div>
 
-                    <div class="badge-container">
+                    <div class="badge-container default-deco">
                         <div class="badge"></div>
                     </div>
 
@@ -464,7 +486,25 @@
     </div>
 
     <script>
-        // تحديث اسم المدرسة فوري ومباشر
+        // دالة تغيير خلفية الشهادة ديناميكياً من اختيار المستخدم
+        function changeCertificateBackground(event) {
+            const input = event.target;
+            if (!input.files || !input.files[0]) return;
+
+            const file = input.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const cert = document.getElementById('certificate');
+                // تعيين الصورة كخلفية
+                cert.style.backgroundImage = `url('${e.target.result}')`;
+                // إضافة كلاس لإخفاء الإطار والزخارف الافتراضية القديمة لتظهر صورتك بوضوح
+                cert.classList.add('custom-bg');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // تحديث اسم المدرسة
         function updateSchool() {
             const schoolInput = document.getElementById('schoolInput').value;
             const certSchool = document.getElementById('certSchool');
@@ -475,7 +515,7 @@
             }
         }
 
-        // تحديث اسم الطالب فوري ومباشر
+        // تحديث اسم الطالب
         function updateName() {
             const nameInput = document.getElementById('nameInput').value;
             const certName = document.getElementById('certName');
@@ -486,7 +526,7 @@
             }
         }
 
-        // تحديث التاريخ التفاعلي وتنسيقه
+        // تحديث التاريخ المختار
         function updateDate() {
             const dateInput = document.getElementById('dateInput').value;
             if(!dateInput) return;
@@ -499,7 +539,7 @@
             document.getElementById('certDate').innerText = `${year} / ${month} / ${day}`;
         }
 
-        // ميزة عزل اللون الأبيض من الخلفية لدمج الولد باحترافية
+        // تفريغ وعزل اللون الأبيض تلقائياً من صورة الطالب
         function processAndRemoveBackground(event) {
             const input = event.target;
             if (!input.files || !input.files[0]) return;
@@ -547,7 +587,7 @@
             reader.readAsDataURL(file);
         }
 
-        // تفعيل الإعدادات الفورية لتاريخ اليوم وقت التحميل تلقائياً
+        // تعيين تاريخ اليوم عند بدء التحميل
         window.onload = function() {
             const today = new Date();
             const year = today.getFullYear();
@@ -560,4 +600,3 @@
     </script>
 </body>
 </html>
-
