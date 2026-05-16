@@ -151,7 +151,6 @@
             flex-shrink: 0;
         }
 
-        /* ضبط عرض الكانفاس على الشاشة ليناسب الموبايل بشكل متجاوب */
         canvas {
             display: block;
             max-width: 100%;
@@ -159,24 +158,24 @@
             background-color: #fff;
         }
 
-        /* كود الطباعة الاحترافي لضبط المقاس A4 بالعرض تماماً */
+        /* كود ضبط مقاس الطباعة المطور A4 بالعرض التام */
         @media print {
             @page {
-                size: A4 landscape; /* إجبار الطابعة على وضعية العرض */
-                margin: 0 !important; /* إلغاء الهوامش تماماً لعدم تقطيع الورقة */
+                size: A4 landscape;
+                margin: 0 !important;
             }
             html, body {
                 margin: 0 !important;
                 padding: 0 !important;
-                width: 297mm !important; /* العرض الدقيق لورقة A4 */
-                height: 210mm !important; /* الارتفاع الدقيق لورقة A4 */
+                width: 297mm !important;
+                height: 210mm !important;
                 background: #fff !important;
                 overflow: hidden !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
             .control-panel, h1, .certificate-scroll-wrapper {
-                display: none !important; /* إخفاء لوحة التحكم والأزرار والعناوين */
+                display: none !important;
             }
             .certificate-container {
                 padding: 0 !important;
@@ -190,7 +189,7 @@
                 height: 210mm !important;
             }
             canvas {
-                width: 297mm !important; /* فرد الكانفاس ليملأ الورقة بالكامل حافة لحافة */
+                width: 297mm !important;
                 height: 210mm !important;
                 max-width: 100% !important;
             }
@@ -226,7 +225,7 @@
 
                 <div class="form-group">
                     <label for="textInput">نص التقدير والثناء الداخلي:</label>
-                    <textarea id="textInput" oninput="drawCertificate()">وذلك تقديراً لجهوده المتميزة وتفوقه في الدراسة وسلوكه الطيب ومثابرته طوال العام الدراسي.&#10;نتمنى لك دوام التوفيق والنجاح لانتهاء العام الدراسي.</textarea>
+                    <textarea id="textInput" oninput="drawCertificate()">وذلك تقديراً لجهوده المتميزة وتفوقه في الدراسة وسلوكه الطيب ومثابرته طوال العام الدراسي. نتمنى لك دوام التوفيق والنجاح لانتهاء العام الدراسي.</textarea>
                 </div>
                 
                 <div class="form-row">
@@ -324,6 +323,34 @@
             reader.readAsDataURL(file);
         }
 
+        // دالة ذكية مخصصة لتقطيع النص تلقائياً وضمان عدم خروجه عن العرض المحدد
+        function wrapText(context, text, x, y, maxWidth, lineHeight) {
+            // تقسيم النص بناءً على السطور اليدوية أولاً ثم الكلمات
+            const paragraphs = text.split('\n');
+            let currentY = y;
+
+            for (let i = 0; i < paragraphs.length; i++) {
+                const words = paragraphs[i].split(' ');
+                let line = '';
+
+                for (let n = 0; n < words.length; n++) {
+                    let testLine = line + words[n] + ' ';
+                    let metrics = context.measureText(testLine);
+                    let testWidth = metrics.width;
+
+                    if (testWidth > maxWidth && n > 0) {
+                        context.fillText(line, x, currentY);
+                        line = words[n] + ' ';
+                        currentY += lineHeight;
+                    } else {
+                        line = testLine;
+                    }
+                }
+                context.fillText(line, x, currentY);
+                currentY += lineHeight;
+            }
+        }
+
         function drawCertificate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -361,6 +388,7 @@
                 formattedDate = `${d.getFullYear()} / ${String(d.getMonth() + 1).padStart(2, '0')} / ${String(d.getDate()).padStart(2, '0')}`;
             }
 
+            // المنطقة الآمنة للنصوص في السنتر تماماً لمنع التداخل مع صورة الطالب باليسار
             const textCenterX = canvas.width * 0.65; 
 
             // 1. اسم المدرسة
@@ -392,36 +420,33 @@
             ctx.stroke();
             ctx.setLineDash([]); 
 
-            // 5. نص التقدير والثناء
-            ctx.font = "600 20px 'Cairo', 'Segoe UI', Arial";
+            // 5. نص التقدير والثناء (تطبيق الحصار والمنطقة الآمنة التلقائية)
+            ctx.font = "600 22px 'Cairo', 'Segoe UI', Arial";
             ctx.fillStyle = "#222222";
-            const lines = appreciationText.split('\n');
-            let startY = 460;
-            lines.forEach((line) => {
-                ctx.fillText(line, textCenterX, startY);
-                startY += 40; 
-            });
+            
+            // قمنا بتحديد عرض أقصى مسموح به للكتابة هو 520 بكسل مع مسافة 40 بكسل بين السطور
+            wrapText(ctx, appreciationText, textCenterX, 460, 520, 40);
 
             // 6. التوقيع والتاريخ
             ctx.font = "bold 18px 'Cairo', 'Segoe UI', Arial";
             ctx.fillStyle = "#111111";
-            ctx.fillText("توقيع المدير / المديرة", textCenterX + 160, 650);
+            ctx.fillText("توقيع المدير / المديرة", textCenterX + 160, 660);
             ctx.beginPath();
             ctx.strokeStyle = "#444444";
             ctx.lineWidth = 1.5;
             ctx.setLineDash([4, 4]);
-            ctx.moveTo(textCenterX + 70, 690);
-            ctx.lineTo(textCenterX + 250, 690);
+            ctx.moveTo(textCenterX + 70, 700);
+            ctx.lineTo(textCenterX + 250, 700);
             ctx.stroke();
             ctx.setLineDash([]);
 
-            ctx.fillText(`التاريخ:  ${formattedDate}`, textCenterX - 160, 650);
+            ctx.fillText(`التاريخ:  ${formattedDate}`, textCenterX - 160, 660);
 
             if (!customBgImage) {
-                drawGoldBadge(canvas.width * 0.42, 655);
+                drawGoldBadge(canvas.width * 0.42, 665);
             }
 
-            // 7. صورة الطالب في أقصى اليسار وبمقاس متناسق
+            // 7. صورة الطالب في أقصى اليسار
             if (studentPhotoImg) {
                 const photoWidth = 340;
                 const photoHeight = 460;
