@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>استوديو تصميم شهادات التقدير الاحترافي المتكامل</title>
+    <title>استوديو تصميم الشهادات الاحترافي - التوليد الجماعي والفردي المطور</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
     <style>
         :root {
             --maroon: #6b0012;
@@ -26,7 +30,7 @@
 
         h1 {
             color: var(--maroon);
-            margin: 10px 0 15px 0;
+            margin: 10px 0 5px 0;
             font-size: 22px;
             text-align: center;
         }
@@ -38,6 +42,59 @@
             max-width: 100%;
             width: 100%;
             align-items: center;
+        }
+
+        .template-selector-zone {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            width: 100%;
+            max-width: 950px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border-top: 4px solid var(--gold);
+        }
+
+        .template-selector-zone label {
+            font-weight: bold;
+            color: var(--maroon);
+            font-size: 15px;
+        }
+
+        .radio-tabs {
+            display: flex;
+            gap: 15px;
+        }
+
+        .radio-label {
+            flex: 1;
+            background: #f7f7f7;
+            border: 2px solid #e0e0e0;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .radio-tabs input[type="radio"] {
+            display: none;
+        }
+
+        .radio-tabs input[type="radio"]:checked + .radio-label {
+            border-color: var(--maroon);
+            background-color: #fdf2f4;
+            color: var(--maroon);
+            box-shadow: 0 3px 8px rgba(107, 0, 18, 0.15);
         }
 
         .toggle-panel-btn {
@@ -62,6 +119,7 @@
 
         .toggle-panel-btn.secondary { background-color: #333; }
         .toggle-panel-btn.darkgold { background-color: #aa7c11; }
+        .toggle-panel-btn.purple { background-color: #4a148c; }
 
         .control-panel {
             background: white;
@@ -151,6 +209,70 @@
             font-weight: 600;
         }
 
+        /* لوحة الألوان الذكية الشاملة */
+        .color-palette-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 12px;
+            background: #f0f2f5;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px dashed #ccc;
+        }
+        .palette-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .palette-header label {
+            font-size: 11px;
+            font-weight: bold;
+            color: #333;
+        }
+        .custom-picker-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--maroon);
+        }
+        .custom-color-picker {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 28px;
+            height: 24px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+        }
+        .custom-color-picker::-webkit-color-swatch {
+            border-radius: 4px;
+            border: 1px solid #777;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .color-boxes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .color-box {
+            width: 22px;
+            height: 22px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 2px solid #fff;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+            transition: all 0.15s ease;
+        }
+        .color-box:hover {
+            transform: scale(1.2);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            z-index: 2;
+        }
+
         .form-group {
             display: flex;
             flex-direction: column;
@@ -223,8 +345,9 @@
 
         .btn-print { background-color: var(--maroon); }
         .btn-image { background-color: #2e7d32; }
+        .btn-bulk-pdf { background-color: #c62828; }
+        .btn-bulk-zip { background-color: #ef6c00; }
 
-        /* تعديل جوهري: الحاوية تحتوي المعاينة وتمنع خروجها عن الشاشة */
         .certificate-scroll-wrapper {
             width: 100%;
             max-width: 950px;
@@ -239,11 +362,10 @@
             padding: 5px;
             border-radius: 8px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-            width: 100%; /* تملأ الحاوية بالكامل */
+            width: 100%;
             box-sizing: border-box;
         }
 
-        /* جعل الكانفاس مرناً ليظهر بالكامل على الشاشات الصغيرة دون التأثير على أبعاده الحقيقية */
         canvas {
             display: block;
             width: 100% !important;
@@ -252,67 +374,77 @@
             background-color: #fff;
         }
 
-        @media print {
-            @page {
-                size: A4 landscape;
-                margin: 0;
-            }
-            html, body {
-                margin: 0 !important;
-                padding: 0 !important;
-                width: 297mm !important;
-                height: 210mm !important;
-                background: #fff !important;
-                overflow: hidden !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-            .control-panel, h1, .toggle-panel-btn, .action-buttons {
-                display: none !important;
-            }
-            .container, .certificate-scroll-wrapper {
-                margin: 0 !important;
-                padding: 0 !important;
-                width: 297mm !important;
-                height: 210mm !important;
-                overflow: hidden !important;
-            }
-            .certificate-container {
-                padding: 0 !important;
-                margin: 0 !important;
-                box-shadow: none !important;
-                border-radius: 0 !important;
-                width: 297mm !important;
-                height: 210mm !important;
-                position: absolute !important;
-                left: 0 !important;
-                top: 0 !important;
-            }
-            canvas {
-                width: 297mm !important;
-                height: 210mm !important;
-                max-width: 100% !important;
-                max-height: 100% !important;
-                display: block !important;
-            }
+        #loadingOverlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            font-size: 20px;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-    <h1>استوديو هندسة وتصميم شهادات التقدير</h1>
+    <div id="loadingOverlay">
+        <div style="margin-bottom: 15px;" id="loadingText">⏳ جاري هندسة وتوليد الملفات، يرجى الانتظار...</div>
+        <div id="progressStatus">0 / 0</div>
+    </div>
+
+    <h1>استوديو هندسة وتصميم شهادات التقدير الاحترافي المتكامل</h1>
 
     <div class="container">
+
+        <div class="template-selector-zone">
+            <label>اختر نوع ونموذج الشهادة المراد تصميمها:</label>
+            <div class="radio-tabs">
+                <input type="radio" id="templateStudents" name="certTemplate" value="students" checked onchange="switchTemplate('students')">
+                <label for="templateStudents" class="radio-label">👶 نموذج 1: شهادات الطلاب والأطفال</label>
+
+                <input type="radio" id="templateTeachers" name="certTemplate" value="teachers" onchange="switchTemplate('teachers')">
+                <label for="templateTeachers" class="radio-label">👨‍🏫 نموذج 2: شكر وتقدير (المعلمين / الإداريين)</label>
+            </div>
+        </div>
         
-        <button class="toggle-panel-btn" onclick="togglePanel('dataPanel', 'arrowData')">
-            <span>📝 1. مدخلات النصوص والملفات الأساسية</span>
-            <span id="arrowData">▲</span>
+        <button class="toggle-panel-btn purple" onclick="togglePanel('bulkPanel', 'arrowBulk')">
+            <span>🚀 1. لوحة التوليد الجماعي السريع (أسماء متعددة دفعة واحدة)</span>
+            <span id="arrowBulk">▲</span>
         </button>
-        <div class="control-panel" id="dataPanel">
+        <div class="control-panel" id="bulkPanel">
             <div class="form-grid">
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="nameInput">اسم الطالب / الطالبة:</label>
+                        <label for="bulkNamesInput">أدخل الأسماء هنا مباشرة (اسم واحد في كل سطر):</label>
+                        <textarea id="bulkNamesInput" rows="6" placeholder="الأستاذ الفاضل / محمد حلمي&#10;الأستاذة الفاضلة / أمنية علي&#10;الأستاذ الفاضل / أحمد محمود"></textarea>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="csvFileInput">أو ارفع ملف الأسماء مباشرة (CSV):</label>
+                        <input type="file" id="csvFileInput" accept=".csv" onchange="handleCSVFile(event)">
+                    </div>
+                </div>
+                <div class="action-buttons" style="margin-top: 5px; max-width: 100%;">
+                    <button class="btn btn-bulk-pdf" onclick="generateBulk('pdf')">📄 حفظ الكل في ملف PDF واحد مجمع</button>
+                    <button class="btn btn-bulk-zip" onclick="generateBulk('zip')">📦 حفظ الكل كـ صور منفصلة داخل ملف ZIP</button>
+                </div>
+            </div>
+        </div>
+
+        <button class="toggle-panel-btn" onclick="togglePanel('dataPanel', 'arrowData')">
+            <span>📝 2. مدخلات النصوص والملفات الأساسية (المعاينة الحالية)</span>
+            <span id="arrowData">▼</span>
+        </button>
+        <div class="control-panel collapsed" id="dataPanel">
+            <div class="form-grid">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label id="lblTargetName" for="nameInput">اسم الطالب / الطالبة:</label>
                         <input type="text" id="nameInput" value="محمد علي" oninput="drawCertificate()">
                     </div>
                     <div class="form-group">
@@ -322,13 +454,17 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="schoolInput">اسم المدرسة / المؤسسة:</label>
+                        <label id="lblSchool" for="schoolInput">اسم مدرسة / مؤسسة الطلاب:</label>
                         <input type="text" id="schoolInput" value="مدرسة 15 مايو التجريبية" oninput="drawCertificate()">
                     </div>
                     <div class="form-group">
                         <label for="signInput">نص خانة التوقيع:</label>
                         <input type="text" id="signInput" value="توقيع المدير / المديرة" oninput="drawCertificate()">
                     </div>
+                </div>
+                <div class="form-group">
+                    <label id="lblSubInput" for="subInput">النص الفرعي للشهادة (اللقب أو التمهيد):</label>
+                    <input type="text" id="subInput" value="تمنح هذه الشهادة للتلميذ / للتلميذة" oninput="drawCertificate()">
                 </div>
                 <div class="form-group">
                     <label for="textInput">نص التقدير والثناء الداخلي:</label>
@@ -340,7 +476,7 @@
                         <input type="file" id="bgInput" accept="image/*" onchange="loadCustomBackground(event)">
                     </div>
                     <div class="form-group">
-                        <label for="photoInput">👶 صورة الطالب (بخلفية بيضاء):</label>
+                        <label id="lblPhotoInput" for="photoInput">👶 صورة الطالب (بخلفية بيضاء):</label>
                         <input type="file" id="photoInput" accept="image/*" onchange="loadStudentPhoto(event)">
                     </div>
                 </div>
@@ -348,35 +484,80 @@
         </div>
 
         <button class="toggle-panel-btn secondary" onclick="togglePanel('textSliderPanel', 'arrowTextSlider')">
-            <span>📐 2. لوحة التحكم المطلقة في أبعاد ومواقع النصوص</span>
+            <span>📐 3. لوحة التحكم المطلقة في أبعاد ومواقع وألوان النصوص</span>
             <span id="arrowTextSlider">▼</span>
         </button>
         <div class="control-panel collapsed" id="textSliderPanel">
             <div class="slider-section">
+                
                 <div class="slider-group">
-                    <h4>🏫 إعدادات اسم المؤسسة/المدرسة</h4>
+                    <h4 id="sldTitleSchool">🏫 إعدادات اسم المؤسسة/المدرسة</h4>
                     <div class="slider-row"><label>موقع أفقي (X):</label><input type="range" id="schoolX" min="0" max="1123" value="836" oninput="updateSliders()"><span id="schoolXVal">836px</span></div>
                     <div class="slider-row"><label>موقع رأسي (Y):</label><input type="range" id="schoolY" min="0" max="794" value="115" oninput="updateSliders()"><span id="schoolYVal">115px</span></div>
                     <div class="slider-row"><label>حجم الخط:</label><input type="range" id="schoolSize" min="15" max="80" value="44" oninput="updateSliders()"><span id="schoolSizeVal">44px</span></div>
+                    <div class="color-palette-wrapper">
+                        <div class="palette-header">
+                            <label>الألوان الجاهزة:</label>
+                            <div class="custom-picker-container">
+                                🎨 لون مخصص: 
+                                <input type="color" id="schoolCustomColor" class="custom-color-picker" value="#6b0012" oninput="setCustomColor('school', this.value)">
+                            </div>
+                        </div>
+                        <div class="color-boxes" id="schoolColorPalette"></div>
+                    </div>
                 </div>
+
                 <div class="slider-group">
                     <h4>👑 عنوان الشهادة الرئيسي</h4>
                     <div class="slider-row"><label>موقع أفقي (X):</label><input type="range" id="titleX" min="0" max="1123" value="786" oninput="updateSliders()"><span id="titleXVal">786px</span></div>
                     <div class="slider-row"><label>موقع رأسي (Y):</label><input type="range" id="titleY" min="0" max="794" value="220" oninput="updateSliders()"><span id="titleYVal">220px</span></div>
                     <div class="slider-row"><label>حجم الخط:</label><input type="range" id="titleSize" min="20" max="100" value="56" oninput="updateSliders()"><span id="titleSizeVal">56px</span></div>
+                    <div class="color-palette-wrapper">
+                        <div class="palette-header">
+                            <label>الألوان الجاهزة:</label>
+                            <div class="custom-picker-container">
+                                🎨 لون مخصص: 
+                                <input type="color" id="titleCustomColor" class="custom-color-picker" value="#6b0012" oninput="setCustomColor('title', this.value)">
+                            </div>
+                        </div>
+                        <div class="color-boxes" id="titleColorPalette"></div>
+                    </div>
                 </div>
+
                 <div class="slider-group blue-group">
-                    <h4>📝 النص الفرعي (تمنح هذه الشهادة...)</h4>
+                    <h4 id="sldTitleSub">📝 النص الفرعي (اللقب أو التمهيد)</h4>
                     <div class="slider-row"><label>موقع أفقي (X):</label><input type="range" id="subX" min="0" max="1123" value="786" oninput="updateSliders()"><span id="subXVal">786px</span></div>
                     <div class="slider-row"><label>موقع رأسي (Y):</label><input type="range" id="subY" min="0" max="794" value="290" oninput="updateSliders()"><span id="subYVal">290px</span></div>
                     <div class="slider-row"><label>حجم الخط:</label><input type="range" id="subSize" min="12" max="50" value="22" oninput="updateSliders()"><span id="subSizeVal">22px</span></div>
+                    <div class="color-palette-wrapper">
+                        <div class="palette-header">
+                            <label>الألوان الجاهزة:</label>
+                            <div class="custom-picker-container">
+                                🎨 لون مخصص: 
+                                <input type="color" id="subCustomColor" class="custom-color-picker" value="#111111" oninput="setCustomColor('sub', this.value)">
+                            </div>
+                        </div>
+                        <div class="color-boxes" id="subColorPalette"></div>
+                    </div>
                 </div>
+
                 <div class="slider-group blue-group">
-                    <h4>👤 اسم الطالب / الطالبة</h4>
+                    <h4 id="sldTitleName">👤 اسم المكرم / المعلم / الطالب</h4>
                     <div class="slider-row"><label>موقع أفقي (X):</label><input type="range" id="nameX" min="0" max="1123" value="786" oninput="updateSliders()"><span id="nameXVal">786px</span></div>
                     <div class="slider-row"><label>موقع رأسي (Y):</label><input type="range" id="nameY" min="0" max="794" value="370" oninput="updateSliders()"><span id="nameYVal">370px</span></div>
                     <div class="slider-row"><label>حجم الخط:</label><input type="range" id="nameSize" min="20" max="100" value="42" oninput="updateSliders()"><span id="nameSizeVal">42px</span></div>
+                    <div class="color-palette-wrapper">
+                        <div class="palette-header">
+                            <label>الألوان الجاهزة:</label>
+                            <div class="custom-picker-container">
+                                🎨 لون مخصص: 
+                                <input type="color" id="nameCustomColor" class="custom-color-picker" value="#6b0012" oninput="setCustomColor('name', this.value)">
+                            </div>
+                        </div>
+                        <div class="color-boxes" id="nameColorPalette"></div>
+                    </div>
                 </div>
+
                 <div class="slider-group green-group">
                     <h4>💬 فقرة نص التقدير والثناء</h4>
                     <div class="slider-row"><label>موقع أفقي (X):</label><input type="range" id="textX" min="0" max="1123" value="786" oninput="updateSliders()"><span id="textXVal">786px</span></div>
@@ -384,31 +565,52 @@
                     <div class="slider-row"><label>عرض النص الأقصى:</label><input type="range" id="textW" min="100" max="1000" value="450" oninput="updateSliders()"><span id="textWVal">450px</span></div>
                     <div class="slider-row"><label>حجم الخط:</label><input type="range" id="textSize" min="12" max="50" value="22" oninput="updateSliders()"><span id="textSizeVal">22px</span></div>
                     <div class="slider-row"><label>تباعد الأسطر:</label><input type="range" id="lineH" min="15" max="80" value="40" oninput="updateSliders()"><span id="lineHVal">40px</span></div>
+                    <div class="color-palette-wrapper">
+                        <div class="palette-header">
+                            <label>الألوان الجاهزة:</label>
+                            <div class="custom-picker-container">
+                                🎨 لون مخصص: 
+                                <input type="color" id="textCustomColor" class="custom-color-picker" value="#222222" oninput="setCustomColor('text', this.value)">
+                            </div>
+                        </div>
+                        <div class="color-boxes" id="textColorPalette"></div>
+                    </div>
                 </div>
+
                 <div class="slider-group gold-group">
-                    <h4>🖋️ التاريخ، التوقيع، والشارة المذهبة</h4>
+                    <h4>🖋️ التاريخ والتوقيع</h4>
                     <div class="slider-row"><label>التوقيع - أفقي (X):</label><input type="range" id="signX" min="0" max="1123" value="926" oninput="updateSliders()"><span id="signXVal">926px</span></div>
                     <div class="slider-row"><label>التوقيع - رأسي (Y):</label><input type="range" id="signY" min="0" max="794" value="660" oninput="updateSliders()"><span id="signYVal">660px</span></div>
                     <div class="slider-row"><label>التاريخ - أفقي (X):</label><input type="range" id="dateX" min="0" max="1123" value="646" oninput="updateSliders()"><span id="dateXVal">646px</span></div>
                     <div class="slider-row"><label>التاريخ - رأسي (Y):</label><input type="range" id="dateY" min="0" max="794" value="660" oninput="updateSliders()"><span id="dateYVal">660px</span></div>
                     <div class="slider-row"><label>الشارة - أفقي (X):</label><input type="range" id="badgeX" min="0" max="1123" value="766" oninput="updateSliders()"><span id="badgeXVal">766px</span></div>
                     <div class="slider-row"><label>الشارة - رأسي (Y):</label><input type="range" id="badgeY" min="0" max="794" value="665" oninput="updateSliders()"><span id="badgeYVal">665px</span></div>
+                    <div class="color-palette-wrapper">
+                        <div class="palette-header">
+                            <label>الألوان الجاهزة:</label>
+                            <div class="custom-picker-container">
+                                🎨 لون مخصص: 
+                                <input type="color" id="signCustomColor" class="custom-color-picker" value="#111111" oninput="setCustomColor('sign', this.value)">
+                            </div>
+                        </div>
+                        <div class="color-boxes" id="signColorPalette"></div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <button class="toggle-panel-btn darkgold" onclick="togglePanel('photoSliderPanel', 'arrowPhotoSlider')">
-            <span>👶 3. إعدادات ومزايا صورة الطالب المتقدمة</span>
+            <span>👶 4. إعدادات ومزايا الصورة المتقدمة</span>
             <span id="arrowPhotoSlider">▼</span>
         </button>
         <div class="control-panel collapsed" id="photoSliderPanel">
             <div class="checkbox-row">
-                <label><input type="checkbox" id="showPhotoCheck" checked onchange="drawCertificate()"> إظهار صورة الطالب في التصميم</label>
+                <label><input type="checkbox" id="showPhotoCheck" checked onchange="drawCertificate()"> إظهار الصورة في التصميم</label>
                 <label><input type="checkbox" id="flipPhotoCheck" onchange="drawCertificate()"> عكس اتجاه الصورة أفقياً (Mirror)</label>
             </div>
             <div class="slider-section">
                 <div class="slider-group gold-group" style="grid-column: 1 / -1;">
-                    <h4>📐 هيدروليك موقع وحجم وحواف صورة التلميذ</h4>
+                    <h4 id="sldTitlePhoto">📐 هيدروليك موقع وحجم وحواف صورة الشخص</h4>
                     <div class="slider-row"><label>موقع أفقي (X):</label><input type="range" id="photoXSlider" min="-200" max="1123" value="50" oninput="updateSliders()"><span id="photoXVal">50px</span></div>
                     <div class="slider-row"><label>موقع رأسي (Y):</label><input type="range" id="photoYSlider" min="-200" max="794" value="120" oninput="updateSliders()"><span id="photoYVal">120px</span></div>
                     <div class="slider-row"><label>عرض الصورة (W):</label><input type="range" id="photoWidthSlider" min="50" max="1000" value="400" oninput="updateSliders()"><span id="photoWidthVal">400px</span></div>
@@ -418,8 +620,8 @@
         </div>
 
         <div class="action-buttons">
-            <button class="btn btn-print" onclick="triggerPrint()">🖨️ طباعة الشهادة كاملة على ورقة A4</button>
-            <button class="btn btn-image" onclick="downloadCertificateImage()">💾 حفظ كصورة PNG أصلية عالية الدقة</button>
+            <button class="btn btn-print" onclick="generateSinglePDF()">📄 تحميل الشهادة الحالية كـ PDF احترافي</button>
+            <button class="btn btn-image" onclick="downloadCertificateImage()">💾 حفظ المعاينة الحالية كصورة PNG</button>
         </div>
 
         <div class="certificate-scroll-wrapper">
@@ -434,21 +636,172 @@
         const canvas = document.getElementById('certCanvas');
         const ctx = canvas.getContext('2d');
 
-        let customBgImage = null;
+        let currentTemplate = "students"; 
+        let bgImages = { students: null, teachers: null };
         let studentPhotoImg = null;
+
+        // قائمة الـ 15 لوناً الكلاسيكية السريعة المتاحة كأزرار اختصار
+        const availableColors = [
+            "#6b0012", "#c62828", "#e65100", "#d81b60", 
+            "#2e7d32", "#43a047", "#00897b",           
+            "#1a237e", "#1565c0", "#00b0ff", "#4a148c", 
+            "#aa7c11", "#5d4037", "#111111", "#37474f"  
+        ];
+
+        // الألوان الافتراضية لكل نص حسب النموذج الحالي
+        let currentColors = {
+            school: "#6b0012",
+            title: "#6b0012",
+            sub: "#111111",
+            name: "#6b0012",
+            text: "#222222",
+            sign: "#111111"
+        };
+
+        let templateSlidersConfig = {
+            students: {
+                schoolX: 836, schoolY: 115, schoolSize: 44,
+                titleX: 786, titleY: 220, titleSize: 56,
+                subX: 786, subY: 290, subSize: 22,
+                nameX: 786, nameY: 370, nameSize: 42,
+                textX: 786, textY: 460, textW: 450, textSize: 22, lineH: 40,
+                signX: 926, signY: 660, dateX: 646, dateY: 660, badgeX: 766, badgeY: 665,
+                photoXSlider: 50, photoYSlider: 120, photoWidthSlider: 400, photoHeightSlider: 550
+            },
+            teachers: {
+                schoolX: 561, schoolY: 115, schoolSize: 36,
+                titleX: 561, titleY: 210, titleSize: 58,
+                subX: 561, subY: 295, subSize: 24,
+                nameX: 561, nameY: 370, nameSize: 46,
+                textX: 561, textY: 475, textW: 750, textSize: 23, lineH: 42,
+                signX: 880, signY: 670, dateX: 250, dateY: 670, badgeX: 561, badgeY: 670,
+                photoXSlider: 850, photoYSlider: 200, photoWidthSlider: 200, photoHeightSlider: 260
+            }
+        };
+
+        let templateTexts = {
+            students: {
+                targetNameLabel: "اسم الطالب / الطالبة:", targetNameVal: "محمد علي",
+                schoolLabel: "اسم مدرسة / مؤسسة الطلاب:", schoolVal: "مدرسة 15 مايو التجريبية",
+                subLabel: "النص الفرعي للشهادة (اللقب أو التمهيد):", subVal: "تمنح هذه الشهادة للتلميذ / للتلميذة",
+                signVal: "توقيع المدير / المديرة",
+                textVal: "وذلك تقديراً لجهوده المتميزة وتفوقه في الدراسة وسلوكه الطيب ومثابرته طوال العام الدراسي. نتمنى لك دوام التوفيق والنجاح لانتهاء العام الدراسي.",
+                photoLabel: "👶 صورة الطالب (بخلفية بيضاء):",
+                sldSchool: "🏫 إعدادات اسم المؤسسة/المدرسة", sldSub: "📝 النص الفرعي (اللقب أو التمهيد)",
+                sldName: "👤 اسم الطالب / الطالبة", sldPhoto: "📐 هيدروليك موقع وحجم وحواف صورة التلميذ",
+                colors: { school: "#6b0012", title: "#6b0012", sub: "#111111", name: "#6b0012", text: "#222222", sign: "#111111" }
+            },
+            teachers: {
+                targetNameLabel: "اسم المعلم أو المعلمة المكرمة:", targetNameVal: "الأستاذ الفاضل / أحمد محمود",
+                schoolLabel: "الجهة المهدية للشهادة (إدارة المدرسة):", schoolVal: "إدارة مدرسة التميز الرسمية",
+                subLabel: "لقب أو صفة المكرم (تظهر فوق الاسم مباشرة):", subVal: "إلى المعلم الفاضل والمربي القدير",
+                signVal: "توقيع مدير المدرسة",
+                textVal: "نرسل لكم باقة من الشكر والثناء العاطر تقديراً لجهودكم المخلصة وعطائكم الدائم في بناء الأجيال، وتفانيكم المستمر في العملية التعليمية والتربوية. جزاكم الله عنا خير الجزاء.",
+                photoLabel: "👨‍🏫 صورة المعلم / المدير المخصصة:",
+                sldSchool: "🏫 إعدادات جهة الإهداء والشهادة", sldSub: "📝 لقب أو صفة المكرم",
+                sldName: "👤 اسم المعلم / المكرم", sldPhoto: "📐 هيدروليك موقع وحجم وحواف صورة المعلم",
+                colors: { school: "#aa7c11", title: "#6b0012", sub: "#111111", name: "#aa7c11", text: "#222222", sign: "#111111" }
+            }
+        };
 
         window.onload = function() {
             const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const day = String(today.getDate()).padStart(2, '0');
-            document.getElementById('dateInput').value = `${year}-${month}-${day}`;
+            document.getElementById('dateInput').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            
+            buildColorPalettes();
+            applySlidersFromConfig('students');
+            currentColors = {...templateTexts.students.colors};
+            syncCustomColorPickers();
             updateSliders();
         }
 
-        function triggerPrint() {
+        // بناء باليتات الألوان السريعة المكونة من 15 لوناً مسبقاً
+        function buildColorPalettes() {
+            const sections = ['school', 'title', 'sub', 'name', 'text', 'sign'];
+            sections.forEach(sec => {
+                const container = document.getElementById(`${sec}ColorPalette`);
+                if(container) {
+                    container.innerHTML = '';
+                    availableColors.forEach(color => {
+                        const box = document.createElement('div');
+                        box.className = 'color-box';
+                        box.style.backgroundColor = color;
+                        box.title = color;
+                        box.onclick = function() {
+                            currentColors[sec] = color;
+                            const picker = document.getElementById(`${sec}CustomColor`);
+                            if(picker) picker.value = color; // مزامنة الـ Color Picker عند اختيار لون سريع
+                            drawCertificate();
+                        };
+                        container.appendChild(box);
+                    });
+                }
+            });
+        }
+
+        // دالة التحكم التام في الألوان اللانهائية عبر الـ Color Picker المخصص
+        function setCustomColor(section, colorValue) {
+            currentColors[section] = colorValue;
             drawCertificate();
-            setTimeout(() => { window.print(); }, 250);
+        }
+
+        // تحديث قيم عناصر الـ Color Pickers لتتوافق مع مصفوفة قالب الألوان الحالي عند التبديل
+        function syncCustomColorPickers() {
+            const sections = ['school', 'title', 'sub', 'name', 'text', 'sign'];
+            sections.forEach(sec => {
+                const picker = document.getElementById(`${sec}CustomColor`);
+                if(picker && currentColors[sec]) {
+                    // معالجة الألوان القصيرة أو الأسماء النصية لتجنب خطأ الـ Input
+                    if(currentColors[sec].startsWith('#') && currentColors[sec].length === 7) {
+                        picker.value = currentColors[sec];
+                    } else if(currentColors[sec] === '#111111' || currentColors[sec] === '#222222') {
+                        picker.value = currentColors[sec];
+                    }
+                }
+            });
+        }
+
+        function applySlidersFromConfig(tempName) {
+            const config = templateSlidersConfig[tempName];
+            for (let id in config) {
+                const el = document.getElementById(id);
+                if (el) el.value = config[id];
+            }
+        }
+
+        function saveCurrentSlidersToConfig(tempName) {
+            const config = templateSlidersConfig[tempName];
+            for (let id in config) {
+                const el = document.getElementById(id);
+                if (el) config[id] = parseInt(el.value);
+            }
+            templateTexts[tempName].colors = {...currentColors};
+        }
+
+        function switchTemplate(target) {
+            saveCurrentSlidersToConfig(currentTemplate);
+            currentTemplate = target;
+            const texts = templateTexts[target];
+            
+            document.getElementById('lblTargetName').textContent = texts.targetNameLabel;
+            document.getElementById('nameInput').value = texts.targetNameVal;
+            document.getElementById('lblSchool').textContent = texts.schoolLabel;
+            document.getElementById('schoolInput').value = texts.schoolVal;
+            document.getElementById('lblSubInput').textContent = texts.subLabel;
+            document.getElementById('subInput').value = texts.subVal;
+            document.getElementById('signInput').value = texts.signVal;
+            document.getElementById('textInput').value = texts.textVal;
+            document.getElementById('lblPhotoInput').textContent = texts.photoLabel;
+            
+            document.getElementById('sldTitleSchool').textContent = texts.sldSchool;
+            document.getElementById('sldTitleSub').textContent = texts.sldSub;
+            document.getElementById('sldTitleName').textContent = texts.sldName;
+            document.getElementById('sldTitlePhoto').textContent = texts.sldPhoto;
+
+            applySlidersFromConfig(target);
+            currentColors = {...texts.colors};
+            syncCustomColorPickers();
+            updateSliders();
         }
 
         function togglePanel(panelId, arrowId) {
@@ -466,13 +819,11 @@
                 'signX', 'signY', 'dateX', 'dateY', 'badgeX', 'badgeY',
                 'photoX', 'photoY', 'photoWidth', 'photoHeight'
             ];
-            
             sliders.forEach(id => {
                 const sliderEl = document.getElementById(id.includes('photo') ? id + 'Slider' : id);
                 const valEl = document.getElementById(id + 'Val');
                 if(sliderEl && valEl) valEl.textContent = sliderEl.value + 'px';
             });
-            
             drawCertificate();
         }
 
@@ -482,7 +833,7 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image();
-                img.onload = function() { customBgImage = img; drawCertificate(); };
+                img.onload = function() { bgImages[currentTemplate] = img; drawCertificate(); };
                 img.src = e.target.result;
             };
             reader.readAsDataURL(file);
@@ -497,21 +848,15 @@
                 img.onload = function() {
                     const tempCanvas = document.createElement('canvas');
                     const tempCtx = tempCanvas.getContext('2d');
-                    tempCanvas.width = img.width;
-                    tempCanvas.height = img.height;
+                    tempCanvas.width = img.width; tempCanvas.height = img.height;
                     tempCtx.drawImage(img, 0, 0);
-
                     const imgData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
                     const data = imgData.data;
                     const threshold = 220;
-
                     for (let i = 0; i < data.length; i += 4) {
-                        if (data[i] > threshold && data[i+1] > threshold && data[i+2] > threshold) {
-                            data[i+3] = 0;
-                        }
+                        if (data[i] > threshold && data[i+1] > threshold && data[i+2] > threshold) data[i+3] = 0;
                     }
                     tempCtx.putImageData(imgData, 0, 0);
-
                     const processedImg = new Image();
                     processedImg.onload = function() { studentPhotoImg = processedImg; drawCertificate(); };
                     processedImg.src = tempCanvas.toDataURL();
@@ -521,63 +866,64 @@
             reader.readAsDataURL(file);
         }
 
+        function handleCSVFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+                document.getElementById('bulkNamesInput').value = lines.join('\n');
+            };
+            reader.readAsText(file);
+        }
+
         function wrapText(context, text, x, y, maxWidth, lineHeight) {
             const paragraphs = text.split('\n');
             let currentY = y;
-
             for (let i = 0; i < paragraphs.length; i++) {
                 const words = paragraphs[i].split(' ');
                 let line = '';
-
                 for (let n = 0; n < words.length; n++) {
                     let testLine = line + words[n] + ' ';
-                    let metrics = context.measureText(testLine);
-                    let testWidth = metrics.width;
-
-                    if (testWidth > maxWidth && n > 0) {
+                    if (context.measureText(testLine).width > maxWidth && n > 0) {
                         context.fillText(line, x, currentY);
                         line = words[n] + ' ';
                         currentY += lineHeight;
-                    } else {
-                        line = testLine;
-                    }
+                    } else { line = testLine; }
                 }
                 context.fillText(line, x, currentY);
                 currentY += lineHeight;
             }
         }
 
-        function drawCertificate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            if (customBgImage) {
-                ctx.drawImage(customBgImage, 0, 0, canvas.width, canvas.height);
+        function drawCertificateOnContext(customCtx, targetName) {
+            let currentBg = bgImages[currentTemplate];
+            if (currentBg) {
+                customCtx.drawImage(currentBg, 0, 0, canvas.width, canvas.height);
             } else {
-                ctx.fillStyle = "#faf6ec";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                ctx.strokeStyle = "#6b0012";
-                ctx.lineWidth = 30;
-                ctx.strokeRect(15, 15, canvas.width - 30, canvas.height - 30);
-
-                ctx.strokeStyle = "#d4af37";
-                ctx.lineWidth = 4;
-                ctx.strokeRect(40, 40, canvas.width - 80, canvas.height - 80);
-                
-                drawCornerDeco(45, 45, 50, 50); 
-                drawCornerDeco(canvas.width - 45, 45, -50, 50); 
-                drawCornerDeco(45, canvas.height - 45, 50, -50); 
-                drawCornerDeco(canvas.width - 45, canvas.height - 45, -50, -50); 
+                if(currentTemplate === "students") {
+                    customCtx.fillStyle = "#faf6ec"; customCtx.fillRect(0, 0, canvas.width, canvas.height);
+                    customCtx.strokeStyle = "#6b0012"; customCtx.lineWidth = 30; customCtx.strokeRect(15, 15, canvas.width - 30, canvas.height - 30);
+                    customCtx.strokeStyle = "#d4af37"; customCtx.lineWidth = 4; customCtx.strokeRect(40, 40, canvas.width - 80, canvas.height - 80);
+                    drawCornerDecoOnCtx(customCtx, 45, 45, 50, 50); 
+                    drawCornerDecoOnCtx(customCtx, canvas.width - 45, 45, -50, 50); 
+                    drawCornerDecoOnCtx(customCtx, 45, canvas.height - 45, 50, -50); 
+                    drawCornerDecoOnCtx(customCtx, canvas.width - 45, canvas.height - 45, -50, -50); 
+                } else {
+                    customCtx.fillStyle = "#fcf9f2"; customCtx.fillRect(0, 0, canvas.width, canvas.height);
+                    customCtx.strokeStyle = "#6b0012"; customCtx.lineWidth = 20; customCtx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+                    customCtx.strokeStyle = "#aa7c11"; customCtx.lineWidth = 3; customCtx.strokeRect(38, 38, canvas.width - 76, canvas.height - 76); customCtx.strokeRect(46, 46, canvas.width - 92, canvas.height - 92);
+                    drawTeacherCornerOnCtx(customCtx, 38, 38); drawTeacherCornerOnCtx(customCtx, canvas.width - 38, 38); drawTeacherCornerOnCtx(customCtx, 38, canvas.height - 38); drawTeacherCornerOnCtx(customCtx, canvas.width - 38, canvas.height - 38);
+                }
             }
 
-            ctx.textBaseline = "middle";
-            ctx.textAlign = "center"; 
+            customCtx.textBaseline = "middle"; customCtx.textAlign = "center"; 
 
             const schoolName = document.getElementById('schoolInput').value || "";
-            const studentName = document.getElementById('nameInput').value || "";
+            const subTitleText = document.getElementById('subInput').value || "";
             const appreciationText = document.getElementById('textInput').value || "";
             const signatureTitle = document.getElementById('signInput').value || "";
-            
             const dateVal = document.getElementById('dateInput').value;
             let formattedDate = "";
             if(dateVal) {
@@ -585,135 +931,182 @@
                 formattedDate = `${d.getFullYear()} / ${String(d.getMonth() + 1).padStart(2, '0')} / ${String(d.getDate()).padStart(2, '0')}`;
             }
 
-            const sX = parseInt(document.getElementById('schoolX').value);
-            const sY = parseInt(document.getElementById('schoolY').value);
-            const sSize = parseInt(document.getElementById('schoolSize').value);
+            const getVal = id => parseInt(document.getElementById(id).value);
 
-            const tX = parseInt(document.getElementById('titleX').value);
-            const tY = parseInt(document.getElementById('titleY').value);
-            const tSize = parseInt(document.getElementById('titleSize').value);
+            // استخدام مصفوفة الألوان المخصصة واللانهائية المحدثة حركياً
+            customCtx.font = `bold ${getVal('schoolSize')}px 'Cairo', 'Segoe UI', Arial`;
+            customCtx.fillStyle = currentColors.school; 
+            customCtx.fillText(schoolName, getVal('schoolX'), getVal('schoolY'));
 
-            const subX = parseInt(document.getElementById('subX').value);
-            const subY = parseInt(document.getElementById('subY').value);
-            const subSize = parseInt(document.getElementById('subSize').value);
+            customCtx.font = `bold ${getVal('titleSize')}px 'Cairo', 'Segoe UI', Arial`;
+            customCtx.fillStyle = currentColors.title;
+            customCtx.fillText(currentTemplate === "students" ? "شهادة تقدير" : "شهادة شكر وتقدير", getVal('titleX'), getVal('titleY'));
 
-            const nX = parseInt(document.getElementById('nameX').value);
-            const nY = parseInt(document.getElementById('nameY').value);
-            const nSize = parseInt(document.getElementById('nameSize').value);
+            customCtx.font = `600 ${getVal('subSize')}px 'Cairo', 'Segoe UI', Arial`;
+            customCtx.fillStyle = currentColors.sub;
+            customCtx.fillText(subTitleText, getVal('subX'), getVal('subY'));
 
-            const txtX = parseInt(document.getElementById('textX').value);
-            const txtY = parseInt(document.getElementById('textY').value);
-            const txtW = parseInt(document.getElementById('textW').value);
-            const txtSize = parseInt(document.getElementById('textSize').value);
-            const txtLineH = parseInt(document.getElementById('lineH').value);
+            customCtx.font = `bold ${getVal('nameSize')}px 'Cairo', 'Segoe UI', Arial`;
+            customCtx.fillStyle = currentColors.name;
+            customCtx.fillText(targetName, getVal('nameX'), getVal('nameY'));
 
-            const signX = parseInt(document.getElementById('signX').value);
-            const signY = parseInt(document.getElementById('signY').value);
-            const dateX = parseInt(document.getElementById('dateX').value);
-            const dateY = parseInt(document.getElementById('dateY').value);
+            customCtx.beginPath(); customCtx.strokeStyle = currentColors.name; customCtx.lineWidth = 2; customCtx.setLineDash([4, 4]);
+            customCtx.moveTo(getVal('nameX') - 220, getVal('nameY') + 40); customCtx.lineTo(getVal('nameX') + 220, getVal('nameY') + 40);
+            customCtx.stroke(); customCtx.setLineDash([]); 
+
+            customCtx.font = `600 ${getVal('textSize')}px 'Cairo', 'Segoe UI', Arial`; 
+            customCtx.fillStyle = currentColors.text;
+            wrapText(customCtx, appreciationText, getVal('textX'), getVal('textY'), getVal('textW'), getVal('lineH'));
+
+            customCtx.font = "bold 18px 'Cairo', 'Segoe UI', Arial"; 
+            customCtx.fillStyle = currentColors.sign;
+            customCtx.fillText(signatureTitle, getVal('signX'), getVal('signY'));
             
-            const bX = parseInt(document.getElementById('badgeX').value);
-            const bY = parseInt(document.getElementById('badgeY').value);
+            customCtx.beginPath(); customCtx.strokeStyle = currentColors.sign; customCtx.lineWidth = 1.5; customCtx.setLineDash([4, 4]);
+            customCtx.moveTo(getVal('signX') - 90, getVal('signY') + 40); customCtx.lineTo(getVal('signX') + 90, getVal('signY') + 40);
+            customCtx.stroke(); customCtx.setLineDash([]);
 
-            ctx.font = `bold ${sSize}px 'Cairo', 'Segoe UI', Arial`;
-            ctx.fillStyle = "#6b0012"; 
-            ctx.fillText(schoolName, sX, sY);
+            customCtx.fillText(`التاريخ:  ${formattedDate}`, getVal('dateX'), getVal('dateY'));
 
-            ctx.font = `bold ${tSize}px 'Cairo', 'Segoe UI', Arial`;
-            ctx.fillStyle = "#6b0012";
-            ctx.fillText("شهادة تقدير", tX, tY);
-
-            ctx.font = `600 ${subSize}px 'Cairo', 'Segoe UI', Arial`;
-            ctx.fillStyle = "#111111";
-            ctx.fillText("تمنح هذه الشهادة للتلميذ / للتلميذة", subX, subY);
-
-            ctx.font = `bold ${nSize}px 'Cairo', 'Segoe UI', Arial`;
-            ctx.fillStyle = "#6b0012";
-            ctx.fillText(studentName, nX, nY);
-
-            ctx.beginPath();
-            ctx.strokeStyle = "#6b0012";
-            ctx.lineWidth = 2;
-            ctx.setLineDash([4, 4]);
-            ctx.moveTo(nX - 180, nY + 40);
-            ctx.lineTo(nX + 180, nY + 40);
-            ctx.stroke();
-            ctx.setLineDash([]); 
-
-            ctx.font = `600 ${txtSize}px 'Cairo', 'Segoe UI', Arial`;
-            ctx.fillStyle = "#222222";
-            wrapText(ctx, appreciationText, txtX, txtY, txtW, txtLineH);
-
-            ctx.font = "bold 18px 'Cairo', 'Segoe UI', Arial";
-            ctx.fillStyle = "#111111";
-            ctx.fillText(signatureTitle, signX, signY);
-            
-            ctx.beginPath();
-            ctx.strokeStyle = "#444444";
-            ctx.lineWidth = 1.5;
-            ctx.setLineDash([4, 4]);
-            ctx.moveTo(signX - 90, signY + 40);
-            ctx.lineTo(signX + 90, signY + 40);
-            ctx.stroke();
-            ctx.setLineDash([]);
-
-            ctx.fillText(`التاريخ:  ${formattedDate}`, dateX, dateY);
-
-            if (!customBgImage) {
-                drawGoldBadge(bX, bY);
+            if (!currentBg) {
+                if(currentTemplate === "students") drawGoldBadgeOnCtx(customCtx, getVal('badgeX'), getVal('badgeY'));
+                else drawTeacherGoldBadgeOnCtx(customCtx, getVal('badgeX'), getVal('badgeY'));
             }
 
-            const showPhoto = document.getElementById('showPhotoCheck').checked;
-            if (studentPhotoImg && showPhoto) {
-                const pX = parseInt(document.getElementById('photoXSlider').value);
-                const pY = parseInt(document.getElementById('photoYSlider').value);
-                const pW = parseInt(document.getElementById('photoWidthSlider').value);
-                const pH = parseInt(document.getElementById('photoHeightSlider').value);
-                const flipPhoto = document.getElementById('flipPhotoCheck').checked;
-
-                ctx.save();
-                if (flipPhoto) {
-                    ctx.translate(pX + pW / 2, pY + pH / 2);
-                    ctx.scale(-1, 1);
-                    ctx.drawImage(studentPhotoImg, -pW / 2, -pH / 2, pW, pH);
-                } else {
-                    ctx.drawImage(studentPhotoImg, pX, pY, pW, pH);
-                }
-                ctx.restore();
+            if (studentPhotoImg && document.getElementById('showPhotoCheck').checked) {
+                const pX = getVal('photoXSlider'), pY = getVal('photoYSlider'), pW = getVal('photoWidthSlider'), pH = getVal('photoHeightSlider');
+                customCtx.save();
+                if (document.getElementById('flipPhotoCheck').checked) {
+                    customCtx.translate(pX + pW / 2, pY + pH / 2); customCtx.scale(-1, 1);
+                    customCtx.drawImage(studentPhotoImg, -pW / 2, -pH / 2, pW, pH);
+                } else { customCtx.drawImage(studentPhotoImg, pX, pY, pW, pH); }
+                customCtx.restore();
             }
         }
 
-        function drawCornerDeco(x, y, w, h) {
-            ctx.beginPath();
-            ctx.strokeStyle = "#d4af37";
-            ctx.lineWidth = 5;
-            ctx.moveTo(x + w, y);
-            ctx.lineTo(x, y);
-            ctx.lineTo(x, y + h);
-            ctx.stroke();
+        function drawCertificate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawCertificateOnContext(ctx, document.getElementById('nameInput').value || "");
         }
 
-        function drawGoldBadge(x, y) {
-            ctx.save();
-            ctx.beginPath();
-            ctx.arc(x, y, 35, 0, Math.PI * 2);
-            ctx.fillStyle = "#d4af37";
-            ctx.shadowColor = "rgba(0,0,0,0.15)";
-            ctx.shadowBlur = 6;
-            ctx.fill();
-            ctx.strokeStyle = "#fff";
-            ctx.lineWidth = 2;
-            ctx.setLineDash([3, 3]);
-            ctx.stroke();
-            ctx.restore();
+        function drawCornerDecoOnCtx(c, x, y, w, h) { c.beginPath(); c.strokeStyle = "#d4af37"; c.lineWidth = 5; c.moveTo(x + w, y); c.lineTo(x, y); c.lineTo(x, y + h); c.stroke(); }
+        function drawTeacherCornerOnCtx(c, x, y) { c.fillStyle = "#aa7c11"; c.beginPath(); c.arc(x, y, 10, 0, Math.PI * 2); c.fill(); }
+        function drawGoldBadgeOnCtx(c, x, y) { c.save(); c.beginPath(); c.arc(x, y, 35, 0, Math.PI * 2); c.fillStyle = "#d4af37"; c.fill(); c.strokeStyle = "#fff"; c.lineWidth = 2; c.setLineDash([3, 3]); c.stroke(); c.restore(); }
+        function drawTeacherGoldBadgeOnCtx(c, x, y) {
+            c.save(); c.beginPath();
+            for (let i = 0; i < 16; i++) {
+                c.lineTo(x + Math.cos(i * Math.PI / 8) * 45, y + Math.sin(i * Math.PI / 8) * 45);
+                c.lineTo(x + Math.cos((i + 0.5) * Math.PI / 8) * 38, y + Math.sin((i + 0.5) * Math.PI / 8) * 38);
+            }
+            c.closePath(); c.fillStyle = "#aa7c11"; c.fill();
+            c.beginPath(); c.arc(x, y, 32, 0, Math.PI * 2); c.fillStyle = "#d4af37"; c.fill();
+            c.font = "bold 12px Arial"; c.fillStyle = "#6b0012"; c.textAlign = "center"; c.fillText("⭐", x, y - 5);
+            c.font = "bold 10px 'Cairo'"; c.fillText("تميز", x, y + 12); c.restore();
         }
 
         function downloadCertificateImage() {
-            const studentName = document.getElementById('nameInput').value.trim() || "طالب";
             const link = document.createElement('a');
-            link.download = `شهادة_تقدير_${studentName}.png`;
-            link.href = canvas.toDataURL('image/png', 1.0);
-            link.click();
+            link.download = `شهادة_${document.getElementById('nameInput').value.trim()}.png`;
+            link.href = canvas.toDataURL('image/png', 1.0); link.click();
+        }
+
+        // تصدير PDF مجمع وفردي فائق الدقة ومحافظ على إعداد اللون المختار
+        function generateSinglePDF() {
+            const currentName = document.getElementById('nameInput').value.trim() || "شهادة_تقدير";
+            const overlay = document.getElementById('loadingOverlay');
+            const progress = document.getElementById('progressStatus');
+            const loadingText = document.getElementById('loadingText');
+            
+            loadingText.textContent = "⏳ جاري تصدير وتجهيز ملف الـ PDF الفردي بأعلى جودة...";
+            progress.textContent = "يرجى الانتظار ثانية واحدة...";
+            overlay.style.display = 'flex';
+
+            setTimeout(() => {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [canvas.width, canvas.height] });
+                const imgData = canvas.toDataURL('image/jpeg', 1.0);
+                
+                pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width, canvas.height);
+                pdf.save(`شهادة_${currentName}_${Date.now()}.pdf`);
+                overlay.style.display = 'none';
+            }, 300);
+        }
+
+        function generateBulk(type) {
+            const rawText = document.getElementById('bulkNamesInput').value;
+            const names = rawText.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+
+            if (names.length === 0) {
+                alert("يا غالي مفيش أسماء مكتوبة! اكتب الأسماء أو ارفع ملف CSV الأول.");
+                return;
+            }
+
+            const overlay = document.getElementById('loadingOverlay');
+            const progress = document.getElementById('progressStatus');
+            const loadingText = document.getElementById('loadingText');
+            
+            loadingText.textContent = "⏳ جاري هندسة وتوليد الشهادات الجماعية، يرجى الانتظار...";
+            overlay.style.display = 'flex';
+            progress.textContent = `0 / ${names.length}`;
+
+            const hiddenCanvas = document.createElement('canvas');
+            hiddenCanvas.width = canvas.width;
+            hiddenCanvas.height = canvas.height;
+            const hiddenCtx = hiddenCanvas.getContext('2d');
+
+            let index = 0;
+
+            if (type === 'pdf') {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [canvas.width, canvas.height] });
+
+                function processNextPDF() {
+                    if (index < names.length) {
+                        progress.textContent = `${index + 1} / ${names.length}`;
+                        hiddenCtx.clearRect(0, 0, hiddenCanvas.width, hiddenCanvas.height);
+                        
+                        drawCertificateOnContext(hiddenCtx, names[index]);
+                        const imgData = hiddenCanvas.toDataURL('image/jpeg', 0.9);
+
+                        if (index > 0) pdf.addPage([canvas.width, canvas.height], 'landscape');
+                        pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width, canvas.height);
+
+                        index++;
+                        setTimeout(processNextPDF, 40); 
+                    } else {
+                        pdf.save(`تجميعة_شهادات_التقدير_${Date.now()}.pdf`);
+                        overlay.style.display = 'none';
+                    }
+                }
+                processNextPDF();
+
+            } else if (type === 'zip') {
+                const zip = new JSZip();
+
+                function processNextZIP() {
+                    if (index < names.length) {
+                        progress.textContent = `${index + 1} / ${names.length}`;
+                        hiddenCtx.clearRect(0, 0, hiddenCanvas.width, hiddenCanvas.height);
+
+                        drawCertificateOnContext(hiddenCtx, names[index]);
+                        const imgData = hiddenCanvas.toDataURL('image/png').split(',')[1];
+
+                        zip.file(`شهادة_${names[index].replace(/[/\\?%*:|"<>]/g, '-')}.png`, imgData, {base64: true});
+
+                        index++;
+                        setTimeout(processNextZIP, 40);
+                    } else {
+                        zip.generateAsync({type: "blob"}).then(function(content) {
+                            const link = document.createElement('a');
+                            link.href = URL.createObjectURL(content);
+                            link.download = `ألبوم_صور_الشهادات_${Date.now()}.zip`;
+                            link.click();
+                            overlay.style.display = 'none';
+                        });
+                    }
+                }
+                processNextZIP();
+            }
         }
     </script>
 </body>
